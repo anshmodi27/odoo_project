@@ -1,8 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useAtom } from "jotai";
+import { cartAtom } from "../../variable";
 
-const CartCard = ({ onCartUpdate }) => {
-  const [data, setData] = useState([]);
+const CartCard = () => {
+  const [data, setData] = useAtom(cartAtom);
 
   useEffect(() => {
     fetchCartData();
@@ -22,20 +24,16 @@ const CartCard = ({ onCartUpdate }) => {
   };
 
   const handleIncrement = async (item) => {
-    await updateCartQuantity(item.productId, 1);
-
-    onCartUpdate();
+    await updateCartQuantity(item, 1);
   };
 
   const handleDecrement = async (item) => {
     const newQuantity = item.quantity - 1;
     if (newQuantity > 0) {
-      await updateCartQuantity(item.productId, -1);
+      await updateCartQuantity(item, -1);
     } else {
       handleRemove(item);
     }
-
-    onCartUpdate();
   };
 
   const handleRemove = async (item) => {
@@ -51,19 +49,24 @@ const CartCard = ({ onCartUpdate }) => {
       const result = await response.json();
 
       if (result.success) {
-        alert("Item removed from cart.");
-        fetchCartData(); // Refresh cart data after removal
+        document.getElementById(item._id).classList.add("scale-0");
+        setTimeout(() => {
+          setData((prev) => {
+            const index = prev.findIndex((item2) => item2._id === item._id);
+            const updatedCart = [...prev];
+            updatedCart.splice(index, 1);
+            return updatedCart;
+          });
+        }, 325);
       } else {
         alert(result.error);
       }
     } catch (error) {
       console.error("Error removing item:", error);
     }
-
-    onCartUpdate();
   };
 
-  const updateCartQuantity = async (productId, quantity) => {
+  const updateCartQuantity = async (product, quantity) => {
     try {
       const response = await fetch("/api/cart", {
         method: "POST",
@@ -71,8 +74,10 @@ const CartCard = ({ onCartUpdate }) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          productId,
-          quantity,
+          productId: product._id,
+          productName: product.productName,
+          price: product.price,
+          quantity: quantity,
         }),
       });
 
@@ -84,7 +89,16 @@ const CartCard = ({ onCartUpdate }) => {
 
       if (result.success) {
         console.log("Quantity updated:", result.data);
-        fetchCartData(); // Refresh cart data after update
+        setData((prev) => {
+          const index = prev.findIndex((item) => item._id === product._id);
+          const updatedItem = {
+            ...prev[index],
+            quantity: result.data.quantity,
+          };
+          const updatedCart = [...prev];
+          updatedCart[index] = updatedItem;
+          return updatedCart;
+        });
       } else {
         alert(result.error);
       }
@@ -96,7 +110,11 @@ const CartCard = ({ onCartUpdate }) => {
   return (
     <>
       {data.map((item) => (
-        <>
+        <div
+          key={item._id}
+          id={item._id}
+          className="transition-all duration-300"
+        >
           <div
             className="flex flex-row items-center justify-center xl:justify-start gap-5"
             key={item._id}
@@ -135,7 +153,7 @@ const CartCard = ({ onCartUpdate }) => {
             </div>
           </div>
           <hr className="my-2 border-[1.5px] rounded border-black/60 w-full" />
-        </>
+        </div>
       ))}
     </>
   );

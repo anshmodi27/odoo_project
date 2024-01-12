@@ -7,7 +7,9 @@ export async function POST(req, res) {
   await dbConnect();
 
   try {
-    const existingCartItem = await Cart.findOne({ productId: body.productId });
+    const existingCartItem = await Cart.findOne({
+      productName: body.productName,
+    });
 
     if (existingCartItem) {
       existingCartItem.quantity += body.quantity;
@@ -17,7 +19,10 @@ export async function POST(req, res) {
         return NextResponse.json({ success: true, data: null });
       }
 
-      await existingCartItem.save();
+      await Cart.updateOne(
+        { _id: existingCartItem._id },
+        { $set: existingCartItem }
+      );
       return NextResponse.json({ success: true, data: existingCartItem });
     } else {
       const cartItem = await Cart.create(body);

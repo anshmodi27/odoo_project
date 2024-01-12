@@ -1,47 +1,29 @@
 "use client";
 import { useEffect, useState } from "react";
 import CartCard from "./CartCard";
+import { useAtom } from "jotai";
+import { cartAtom, totalAtom } from "../../variable";
 
 const Cart = () => {
-  const [data, setData] = useState([]);
+  const [data, setData] = useAtom(cartAtom);
 
   // State for total, tax, and subtotal
-  const [total, setTotal] = useState(0);
+  const [total, setTotal] = useAtom(totalAtom);
   const [tax, setTax] = useState(0);
   const [subtotal, setSubtotal] = useState(0);
 
   useEffect(() => {
-    fetchCartData();
-  }, []);
+    const newSubtotal = data.reduce(
+      (acc, item) => acc + item.price * item.quantity,
+      0
+    );
+    const newTax = 0.1 * newSubtotal;
+    const newTotal = newSubtotal + newTax;
 
-  const fetchCartData = async () => {
-    try {
-      const response = await fetch("/api/cart-data");
-      if (!response.ok) {
-        throw new Error(`Failed to fetch cart data: ${response.statusText}`);
-      }
-      const result = await response.json();
-      setData(result.message);
-
-      // Calculate total, tax, and subtotal
-      const newSubtotal = result.message.reduce(
-        (acc, item) => acc + item.price * item.quantity,
-        0
-      );
-      const newTax = 0.1 * newSubtotal;
-      const newTotal = newSubtotal + newTax;
-
-      setSubtotal(newSubtotal);
-      setTax(newTax);
-      setTotal(newTotal);
-    } catch (error) {
-      console.error("Error fetching cart data:", error);
-    }
-  };
-
-  const handleCartUpdate = () => {
-    fetchCartData();
-  };
+    setSubtotal(newSubtotal);
+    setTax(newTax);
+    setTotal(newTotal);
+  }, [data]);
 
   return (
     <div>
@@ -50,7 +32,7 @@ const Cart = () => {
         <hr className="my-2 border-[1.5px] rounded border-black/60" />
       </div>
       <div className="flex flex-col items-start justify-start gap-5 h-[400px] overflow-y-scroll shadow-sm shadow-neutral-700 rounded-md p-2 my-2">
-        <CartCard onCartUpdate={handleCartUpdate} />
+        <CartCard />
       </div>
       <div className="flex flex-col justify-start gap-5">
         <div className="flex items-center justify-between text-[18px]">

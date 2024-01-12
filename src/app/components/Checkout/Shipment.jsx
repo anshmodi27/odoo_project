@@ -1,6 +1,55 @@
-import React from "react";
+"use client";
+import { totalAtom } from "@/app/variable";
+import { useAtom } from "jotai";
+import React, { useEffect, useState } from "react";
+import useRazorpay from "react-razorpay";
 
 const Shipment = () => {
+  const [billAddress, setBillAddress] = useState([]);
+  const [shipAddress, setShipAddress] = useState([]);
+  const [images, setImages] = useState([]);
+  const [total, setTotal] = useAtom(totalAtom);
+  const [Razorpay, isLoaded] = useRazorpay();
+
+  function makeid(length) {
+    let result = "";
+    const characters =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const charactersLength = characters.length;
+    let counter = 0;
+    while (counter < length) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+      counter += 1;
+    }
+    return result;
+  }
+
+  const handlePayment = async () => {
+    const options = {
+      key: "rzp_test_VS3nX7dZzsfTBx", // Enter the Key ID generated from the Dashboard
+      amount: Math.floor(total * 100), // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+      currency: "INR",
+      name: "Acme Corp",
+      description: "Test Transaction",
+      // order_id: "order_" + makeid(14), //This is a sample Order ID. Pass the `id` obtained in the response of createOrder().
+      handler: function (response) {},
+      prefill: {
+        name: "Ansh Modi",
+        email: "youremail@example.com",
+        contact: "9428989806",
+      },
+      theme: {
+        color: "#3399cc",
+      },
+    };
+
+    const rzp1 = new Razorpay(options);
+
+    rzp1.on("payment.failed", function (response) {});
+
+    rzp1.open();
+  };
+
   return (
     <div>
       <div>
@@ -13,7 +62,9 @@ const Shipment = () => {
           <input
             type="text"
             placeholder="Enter Shipment Address"
+            onChange={(e) => setShipAddress(e.target.value)}
             className="border-2 border-black rounded-md p-2 outline-none"
+            value={shipAddress}
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -22,9 +73,16 @@ const Shipment = () => {
             type="text"
             placeholder="Enter Billing Address"
             className="border-2 border-black rounded-md p-2 outline-none"
+            onChange={(e) => setBillAddress(e.target.value)}
+            value={billAddress}
           />
         </div>
-        <button className="bg-black text-white rounded-md p-2 text-center">
+        <button
+          onClick={() => {
+            handlePayment();
+          }}
+          className="bg-black text-white rounded-md p-2 text-center"
+        >
           <p>Proceed to Checkout</p>
         </button>
       </div>

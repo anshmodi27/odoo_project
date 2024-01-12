@@ -40,5 +40,4 @@ const dbConnect = async () => {
   }
 };
 export const mongooseInstance = mongoose;
-
 export default dbConnect;
