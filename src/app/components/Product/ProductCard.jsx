@@ -1,12 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useAtom } from "jotai";
-import { cartAtom, searchAtom } from "../../variable";
+import { cartAtom, searchAtom, userEmailAtom } from "../../variable";
 
 const ProductCard = () => {
   const [data, setData] = useState([]);
   const [cart, setCart] = useAtom(cartAtom);
   const [searchQuery, setSearchQuery] = useAtom(searchAtom);
+  const [email, setEmail] = useAtom(userEmailAtom);
 
   useEffect(() => {
     fetch("/api/data")
@@ -27,6 +28,7 @@ const ProductCard = () => {
           productName: product.productName,
           price: product.price,
           quantity: 1,
+          userEmail: email,
         }),
       });
 
@@ -63,7 +65,10 @@ const ProductCard = () => {
   return (
     <>
       {data.map((item) => {
-        if (searchQuery === "" || item.productName.toLowerCase().includes(searchQuery.toLowerCase())) {
+        if (
+          searchQuery === "" ||
+          item.productName.toLowerCase().includes(searchQuery.toLowerCase())
+        ) {
           return (
             <div className="flex flex-col items-start gap-2" key={item._id}>
               <div className="w-32 h-32 border-2 border-black rounded-[15px]">

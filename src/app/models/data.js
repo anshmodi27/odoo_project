@@ -6,4 +6,5 @@ const productSchema = new mongoose.Schema({
 });
 
 export const Products =
-  mongoose.models.products || mongoose.model("products", productSchema);
+  mongoose.models.products_details ||
+  mongoose.model("products_details", productSchema);

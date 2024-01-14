@@ -7,6 +7,7 @@ export async function POST(req, res) {
   await dbConnect();
 
   try {
+    console.log(body);
     const existingCartItem = await Cart.findOne({
       productName: body.productName,
     });

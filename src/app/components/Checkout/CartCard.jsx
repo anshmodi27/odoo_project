@@ -1,10 +1,19 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useAtom } from "jotai";
-import { cartAtom } from "../../variable";
+import { cartAtom, userEmailAtom } from "../../variable";
+import { useSession } from "next-auth/react";
 
 const CartCard = () => {
   const [data, setData] = useAtom(cartAtom);
+  const [email, setEmail] = useAtom(userEmailAtom);
+
+  const { data: session } = useSession();
+
+  useEffect(() => {
+    console.log(session?.user?.name);
+    setEmail(session?.user?.email);
+  }, []);
 
   useEffect(() => {
     fetchCartData();
@@ -12,7 +21,9 @@ const CartCard = () => {
 
   const fetchCartData = async () => {
     try {
-      const response = await fetch("/api/cart-data");
+      console.log(session?.user);
+      let email = await session?.user?.email;
+      const response = await fetch("/api/cart-data?email=" + email);
       if (!response.ok) {
         throw new Error(`Failed to fetch cart data: ${response.statusText}`);
       }

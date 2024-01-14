@@ -11,25 +11,12 @@ const Shipment = () => {
   const [total, setTotal] = useAtom(totalAtom);
   const [Razorpay, isLoaded] = useRazorpay();
 
-  function makeid(length) {
-    let result = "";
-    const characters =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    const charactersLength = characters.length;
-    let counter = 0;
-    while (counter < length) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-      counter += 1;
-    }
-    return result;
-  }
-
   const handlePayment = async () => {
     const options = {
       key: "rzp_test_VS3nX7dZzsfTBx", // Enter the Key ID generated from the Dashboard
       amount: Math.floor(total * 100), // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
       currency: "INR",
-      name: "Acme Corp",
+      name: "Ansh Modi",
       description: "Test Transaction",
       // order_id: "order_" + makeid(14), //This is a sample Order ID. Pass the `id` obtained in the response of createOrder().
       handler: function (response) {},
@@ -39,7 +26,7 @@ const Shipment = () => {
         contact: "9428989806",
       },
       theme: {
-        color: "#3399cc",
+        color: "#000",
       },
     };
 
@@ -65,6 +52,7 @@ const Shipment = () => {
             onChange={(e) => setShipAddress(e.target.value)}
             className="border-2 border-black rounded-md p-2 outline-none"
             value={shipAddress}
+            rq
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -75,6 +63,7 @@ const Shipment = () => {
             className="border-2 border-black rounded-md p-2 outline-none"
             onChange={(e) => setBillAddress(e.target.value)}
             value={billAddress}
+            rq
           />
         </div>
         <button
