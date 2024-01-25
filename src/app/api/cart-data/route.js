@@ -2,7 +2,7 @@ import Cart from "@/app/models/cart";
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 
-export async function GET(req, res) {
+export async function GET(req) {
   const email = await req.nextUrl.searchParams.get("userEmail");
   console.log(email);
   let data = [];
